@@ -28,19 +28,42 @@ pw_path_full() {
   fi
 }
 
+pw_branch_icon() {
+  # Allow overriding the branch glyph while defaulting to the Jetbrains Mono symbol
+  printf "%s" "${PW_BRANCH_ICON:-$''}"
+}
+
+pw_lolcat_cmd() {
+  # Resolve lolcat in the documented priority order, falling back to /usr/games/lolcat
+  if [[ -n "$PW_LOLCAT" && -x "$PW_LOLCAT" ]]; then
+    printf "%s" "$PW_LOLCAT"
+    return
+  fi
+
+  local bin
+  bin=$(command -v lolcat 2>/dev/null)
+  if [[ -n "$bin" ]]; then
+    printf "%s" "$bin"
+    return
+  fi
+
+  printf "%s" "/usr/games/lolcat"
+}
+
 pw_git() {
   # Returns a prompt segment string (not printed) with git branch + marks
   command -v git >/dev/null 2>&1 || return
   git rev-parse --is-inside-work-tree &>/dev/null || return
 
-  local branch; branch=$(git symbolic-ref --quiet --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)
-  local marks=""
+  local branch icon marks=""
+  branch=$(git symbolic-ref --quiet --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)
+  icon=$(pw_branch_icon)
   git diff --no-ext-diff --quiet --exit-code          || marks+="✚"   # unstaged
   git diff --no-ext-diff --cached --quiet --exit-code || marks+="●"   # staged
   [[ -n "$(git ls-files --others --exclude-standard 2>/dev/null)" ]] && marks+="…"
 
   # Double % so outer print -P can interpret later
-  printf "%%F{#8be9fd}%%f %%F{#f8f8f2}%s%%f%%F{#ff79c6}%s%%f" "$branch" "$marks"
+  printf "%%F{#8be9fd}%s%%f %%F{#f8f8f2}%s%%f%%F{#ff79c6}%s%%f" "$icon" "$branch" "$marks"
 }
 
 # --- Precmd paints the two header lines -------------------------------------
@@ -57,9 +80,10 @@ _pw_precmd() {
   #    - prefix (▛▞▞▟ + user@host) through lolcat
   #    - then the full/~/ path in bright white (not through lolcat)
   #    - then git segment (if present)
-  local prefix fullpath gitseg
+  local prefix fullpath gitseg lolcat_cmd
   prefix="██▓▓▒▒░░  $USER@${HOST%%.*}  "
-  printf "%s" "$prefix" | /usr/games/lolcat -f -p 1.0 -F 0.2 --seed 6131
+  lolcat_cmd=$(pw_lolcat_cmd)
+  printf "%s" "$prefix" | "$lolcat_cmd" -f -p 1.0 -F 0.2 --seed 6131
 
   fullpath=$(pw_path_full)
   print -Pnr -- "%F{#ffffff}${fullpath}%f"

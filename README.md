@@ -2,6 +2,8 @@
 
 **PixelWave** is a sleek, bright, vibrant Zsh theme that mixes old‑school pixel vibes with modern high‑color rendering. It shows a rainbow “pixel bar,” a neon‑colored identity line (via `lolcat`), your full path, and concise Git status.
 
+> **Compatibility note:** PixelWave is exercised regularly on desktop terminal apps for macOS and Linux (e.g., iTerm2, Apple Terminal, GNOME Terminal, Alacritty). The theme almost certainly works in similar environments, but it has **not** been exhaustively tested elsewhere, so assume remote/web terminals or atypical shells may behave differently until you verify.
+
 > **Oh My Zsh** compatible out of the box, but it’s just Zsh—no external frameworks required.
 
 ---
@@ -150,4 +152,3 @@ By default the theme uses:
 ## License
 
 MIT - Use as you like.
-
